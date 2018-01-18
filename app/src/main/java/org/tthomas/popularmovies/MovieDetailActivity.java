@@ -8,8 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +25,8 @@ import java.util.List;
 public class MovieDetailActivity extends AppCompatActivity {
 
     private ImageView mImageDetail;
+
+    private ToggleButton mToggleFavorite;
 
     private TextView mTitleDetail;
 
@@ -65,6 +69,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         mRatingDetail = (TextView) findViewById(R.id.tv_movie_detail_rating);
 
+        mToggleFavorite = (ToggleButton) findViewById(R.id.tb_toggle_favorite);
+
         Intent intentThatStartedThisActivity = getIntent();
 
         if (intentThatStartedThisActivity != null) {
@@ -82,6 +88,14 @@ public class MovieDetailActivity extends AppCompatActivity {
             mReleaseDateDetail.setText("Release Date: " + intentThatStartedThisActivity.getStringExtra("ReleaseDate"));
 
             mRatingDetail.setText("Rating: " + intentThatStartedThisActivity.getStringExtra("VoteAverage"));
+
+            mToggleFavorite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                }
+            });
 
 
             try {
