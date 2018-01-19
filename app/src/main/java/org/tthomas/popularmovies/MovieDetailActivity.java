@@ -1,7 +1,10 @@
 package org.tthomas.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,7 +26,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieDetailActivity extends AppCompatActivity {
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_ID;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_TITLE;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.CONTENT_URI;
+
+public class MovieDetailActivity extends AppCompatActivity  {
 
     private ImageView mImageDetail;
 
@@ -35,6 +44,10 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TextView mReleaseDateDetail;
 
     private TextView mRatingDetail;
+
+    private int FAVORITE_ID = -1;
+
+    private String MOVIE_ID;
 
     private List<String> listIDs;
     private List<String> listKeys;
@@ -51,6 +64,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private String URL_REVIEW = "https://api.themoviedb.org/3/movie/%s/reviews?api_key=";
 
     public static final String MOVIE_API_TOKEN = BuildConfig.MOVIE_API_TOKEN;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +87,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         Intent intentThatStartedThisActivity = getIntent();
 
+        MOVIE_ID = intentThatStartedThisActivity.getStringExtra("ID");
+
         if (intentThatStartedThisActivity != null) {
             if (intentThatStartedThisActivity.hasExtra("Poster")) {
 
@@ -93,6 +109,29 @@ public class MovieDetailActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
 
+                    if(FAVORITE_ID == -1 ) {
+
+                        final Intent intentThatStartedThisActivity = getIntent();
+
+                        // Not yet implemented
+                        // Check if EditText is empty, if not retrieve input and store it in a ContentValues object
+                        // If the EditText input is empty -> don't create an entry
+
+                        // Insert new task data via a ContentResolver
+                        // Create new empty ContentValues object
+                        ContentValues contentValues = new ContentValues();
+                        // Put the task description and selected mPriority into the ContentValues
+                        contentValues.put(COLUMN_ID, intentThatStartedThisActivity.getStringExtra("ID"));
+                        contentValues.put(COLUMN_TITLE, intentThatStartedThisActivity.getStringExtra("Title"));
+                        // Insert the content values via a ContentResolver
+                        Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
+
+                        // Display the URI that's returned with a Toast
+                        // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
+                        if (uri != null) {
+                            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+                        }
+                    }
 
                 }
             });
@@ -101,7 +140,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             try {
                 //Make call to AsyncTask so that we can get
                 //the initial data from the network
-                String ID = intentThatStartedThisActivity.getStringExtra("ID").toString();
+                String ID = intentThatStartedThisActivity.getStringExtra("ID");
                 Log.d("TRAILER ID",ID);
                 new FetchMovieTrailersTask().execute( ID );
 
@@ -151,9 +190,17 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     }
 
+    private void initFavorite(){
+        if(FAVORITE_ID > -1){
+            ToggleButton toggleButton = (ToggleButton)findViewById(R.id.tb_toggle_favorite);
+            toggleButton.setChecked(true);
+        }
+    }
+
     private void initViews(){
         initReviewViews();
         initTrailerViews();
+        initFavorite();
     }
 
     private ArrayList<MovieTrailer> prepareTrailerData(){
@@ -241,12 +288,42 @@ public class MovieDetailActivity extends AppCompatActivity {
                     listReviewContent.add(content.asText());
                 }
 
+                isFavorite(MOVIE_ID);
+
 
             }catch(Exception e) {
                 e.printStackTrace();
             }
 
             return null;
+        }
+
+
+        private void isFavorite(String movieID){
+
+            String[] mSelectionArgs = {movieID};
+
+            String mSelectionClause = FavoriteEntry.COLUMN_ID + " = ?";
+
+            String mProjection[] = {FavoriteEntry._ID};
+
+            String mSortOrder = FavoriteEntry.COLUMN_ID;
+
+            // Does a query against the table and returns a Cursor object
+            Cursor mCursor = getContentResolver().query(
+                    FavoriteEntry.CONTENT_URI,  // The content URI of the words table
+                    mProjection,                       // The columns to return for each row
+                    mSelectionClause ,                 // Either null, or the word the user entered
+                    mSelectionArgs,                    // Either empty, or the string the user entered
+                    mSortOrder);// The sort order for the returned rows
+            if( null == mCursor || mCursor.getCount() < 0 ){
+                FAVORITE_ID = -1;
+            } else if( mCursor.getCount() > 0){
+                int index = mCursor.getColumnIndex(FavoriteEntry._ID);
+                mCursor.moveToFirst();
+                FAVORITE_ID = mCursor.getInt(index);
+            }
+
         }
 
         @Override
