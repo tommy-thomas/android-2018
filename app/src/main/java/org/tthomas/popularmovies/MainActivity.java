@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
             //the initial data from the network
             new FetchMoviesTask().execute();
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -98,24 +98,23 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void initViews(){
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.rv_movie_poster);
+    private void initViews() {
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_movie_poster);
         recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),2);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 2);
         recyclerView.setLayoutManager(layoutManager);
-        if(getApplicationContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ){
+        if (getApplicationContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
-        }
-        else {
+        } else {
             recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 4));
         }
         ArrayList<MovieItem> movies = prepareData();
-        movieItemAdapter = new MovieItemAdapter(getApplicationContext(),movies);
+        movieItemAdapter = new MovieItemAdapter(getApplicationContext(), movies);
         recyclerView.setAdapter(movieItemAdapter);
 
     }
 
-    private ArrayList<MovieItem> prepareData(){
+    private ArrayList<MovieItem> prepareData() {
 
         ArrayList<MovieItem> movies = new ArrayList<>();
         if (!listPosters.isEmpty()) {
@@ -139,14 +138,14 @@ public class MainActivity extends AppCompatActivity {
 
             try {
 
-                String  url  = URL_POPULAR;
+                String url = URL_POPULAR;
 
                 if (params.length > 0) {
                     url = params[0];
                 }
 
                 ObjectMapper mapper = new ObjectMapper();
-                ObjectNode moviedata = (ObjectNode)mapper.readTree( new URL(url + MOVIE_API_TOKEN));
+                ObjectNode moviedata = (ObjectNode) mapper.readTree(new URL(url + MOVIE_API_TOKEN));
 
                 //root of important data
                 JsonNode results = moviedata.path("results");
@@ -154,45 +153,44 @@ public class MainActivity extends AppCompatActivity {
 
                 List<JsonNode> idnodes = results.findValues("id");
                 listIDs = new ArrayList<String>();
-                for(JsonNode id: idnodes) {
+                for (JsonNode id : idnodes) {
                     listIDs.add(id.asText());
                 }
 
                 //get the product view text data
                 List<JsonNode> posternodes = results.findValues("poster_path");
                 listPosters = new ArrayList<String>();
-                for(JsonNode poster: posternodes) {
+                for (JsonNode poster : posternodes) {
                     listPosters.add(poster.asText());
                 }
 
                 List<JsonNode> titlenodes = results.findValues("title");
                 listTitles = new ArrayList<String>();
-                for(JsonNode title: titlenodes) {
+                for (JsonNode title : titlenodes) {
                     listTitles.add(title.asText());
                 }
 
                 List<JsonNode> overviewnodes = results.findValues("overview");
                 listOverviews = new ArrayList<String>();
-                for(JsonNode overview: overviewnodes) {
+                for (JsonNode overview : overviewnodes) {
                     listOverviews.add(overview.asText());
                 }
 
                 List<JsonNode> releasedatenodes = results.findValues("release_date");
                 listReleaseDates = new ArrayList<String>();
-                for(JsonNode releasedate: releasedatenodes) {
+                for (JsonNode releasedate : releasedatenodes) {
                     listReleaseDates.add(releasedate.asText());
                 }
 
 
-
                 List<JsonNode> voteaveragenodes = results.findValues("vote_average");
                 listVoteAverages = new ArrayList<String>();
-                for(JsonNode voteaverage: voteaveragenodes) {
-                   listVoteAverages.add(voteaverage.asText());
+                for (JsonNode voteaverage : voteaveragenodes) {
+                    listVoteAverages.add(voteaverage.asText());
                 }
 
 
-            }catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -212,28 +210,28 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
 
             try {
-               Cursor cursor = getContentResolver().query(CONTENT_URI,
+                Cursor cursor = getContentResolver().query(CONTENT_URI,
                         null,
                         null,
                         null,
-                       _ID);
+                        _ID);
 
                 if (cursor.moveToFirst()) {
                     while (!cursor.isAfterLast()) {
-                        listIDs.add( cursor.getString(cursor.getColumnIndex(COLUMN_ID)) );
-                        listTitles.add( cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)) );
-                        listOverviews.add( cursor.getString(cursor.getColumnIndex(COLUMN_OVERVIEW)) );
-                        listPosters.add( cursor.getString(cursor.getColumnIndex(COLUMN_POSTER_PATH)) );
-                        listReleaseDates.add( cursor.getString(cursor.getColumnIndex(COLUMN_RELEASE_DATE)) );
-                        listVoteAverages.add( cursor.getString(cursor.getColumnIndex(COLUMN_VOTE_AVERAGE)));
+                        listIDs.add(cursor.getString(cursor.getColumnIndex(COLUMN_ID)));
+                        listTitles.add(cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)));
+                        listOverviews.add(cursor.getString(cursor.getColumnIndex(COLUMN_OVERVIEW)));
+                        listPosters.add(cursor.getString(cursor.getColumnIndex(COLUMN_POSTER_PATH)));
+                        listReleaseDates.add(cursor.getString(cursor.getColumnIndex(COLUMN_RELEASE_DATE)));
+                        listVoteAverages.add(cursor.getString(cursor.getColumnIndex(COLUMN_VOTE_AVERAGE)));
                         cursor.moveToNext();
+
                     }
                 }
 
             } catch (Exception e) {
                 Log.e(TAG, "Failed to asynchronously load data.");
                 e.printStackTrace();
-                return null;
             }
             return null;
         }
