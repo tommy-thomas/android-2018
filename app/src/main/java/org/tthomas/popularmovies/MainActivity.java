@@ -1,11 +1,13 @@
 package org.tthomas.popularmovies;
 
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,9 +20,19 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_ID;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_TITLE;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.CONTENT_URI;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry._ID;
 
-public class MainActivity extends AppCompatActivity  {
 
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MOVIES_DB";
     private List<String> listIDs;
     private List<String> listPosters;
     private List<String> listTitles;
@@ -33,8 +45,6 @@ public class MainActivity extends AppCompatActivity  {
     public static final String URL_POPULAR = "https://api.themoviedb.org/3/movie/popular?api_key=";
 
     public static final String URL_TOP_RATED = "https://api.themoviedb.org/3/movie/top_rated?api_key=";
-
-    public static final String URL_TRAILER = "https://api.themoviedb.org/3/movie/top_rated?api_key=";
 
     public static final String MOVIE_API_TOKEN = BuildConfig.MOVIE_API_TOKEN;
 
@@ -77,6 +87,11 @@ public class MainActivity extends AppCompatActivity  {
 
         if (id == R.id.action_sort_top_rated) {
             new FetchMoviesTask().execute(URL_TOP_RATED);
+            return true;
+        }
+
+        if (id == R.id.action_favorites) {
+            new FetchFavoritesTask().execute();
             return true;
         }
 
@@ -191,9 +206,45 @@ public class MainActivity extends AppCompatActivity  {
     }
 
 
+    private class FetchFavoritesTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            try {
+               Cursor cursor = getContentResolver().query(CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                       _ID);
+
+                if (cursor.moveToFirst()) {
+                    while (!cursor.isAfterLast()) {
+                        listIDs.add( cursor.getString(cursor.getColumnIndex(COLUMN_ID)) );
+                        listTitles.add( cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)) );
+                        listOverviews.add( cursor.getString(cursor.getColumnIndex(COLUMN_OVERVIEW)) );
+                        listPosters.add( cursor.getString(cursor.getColumnIndex(COLUMN_POSTER_PATH)) );
+                        listReleaseDates.add( cursor.getString(cursor.getColumnIndex(COLUMN_RELEASE_DATE)) );
+                        listVoteAverages.add( cursor.getString(cursor.getColumnIndex(COLUMN_VOTE_AVERAGE)));
+                        cursor.moveToNext();
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to asynchronously load data.");
+                e.printStackTrace();
+                return null;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            initViews();
+        }
+    }
+
 }
-
-
 
 
 

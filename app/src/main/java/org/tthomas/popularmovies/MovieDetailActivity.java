@@ -29,7 +29,11 @@ import java.util.List;
 
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry;
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_ID;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_OVERVIEW;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_POSTER_PATH;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE;
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_TITLE;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE;
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.CONTENT_URI;
 
 public class MovieDetailActivity extends AppCompatActivity  {
@@ -124,6 +128,11 @@ public class MovieDetailActivity extends AppCompatActivity  {
                         // Put the task description and selected mPriority into the ContentValues
                         contentValues.put(COLUMN_ID, intentThatStartedThisActivity.getStringExtra("ID"));
                         contentValues.put(COLUMN_TITLE, intentThatStartedThisActivity.getStringExtra("Title"));
+                        contentValues.put(COLUMN_OVERVIEW, intentThatStartedThisActivity.getStringExtra("Overview"));
+                        contentValues.put(COLUMN_POSTER_PATH, intentThatStartedThisActivity.getStringExtra("Poster"));
+                        contentValues.put(COLUMN_RELEASE_DATE, intentThatStartedThisActivity.getStringExtra("ReleaseDate"));
+                        contentValues.put(COLUMN_VOTE_AVERAGE, intentThatStartedThisActivity.getStringExtra("VoteAverage"));
+
                         // Insert the content values via a ContentResolver
                         Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
 
