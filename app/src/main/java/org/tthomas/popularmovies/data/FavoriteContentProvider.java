@@ -10,9 +10,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
-import static org.tthomas.popularmovies.data.FavoriteContract.*;
+import static org.tthomas.popularmovies.data.FavoriteContract.AUTHORITY;
+import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry;
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.TABLE_NAME;
+import static org.tthomas.popularmovies.data.FavoriteContract.PATH_FAVORITES;
 
 
 public class FavoriteContentProvider extends ContentProvider {
@@ -122,7 +125,8 @@ public class FavoriteContentProvider extends ContentProvider {
         switch (match){
             case FAVORITE_WITH_ID:
                 String id = uri.getPathSegments().get(1);
-                String mSelection = "_id=?";
+                Log.d("DELETE ID: " , id);
+                String mSelection = "_ID=?";
                 String[] mSelectionArgs = new String[]{id};
 
                 deletedCount = db.delete(TABLE_NAME, mSelection, mSelectionArgs);

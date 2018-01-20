@@ -50,14 +50,6 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!--<ImageView-->
-            <!--android:id="@+id/iv_favorites_star"-->
-            <!--android:layout_width="36dp"-->
-            <!--android:layout_height="36dp"-->
-            <!--android:layout_below="@+id/tv_movie_detail_rating"-->
-            <!--android:layout_toRightOf="@+id/iv_movie_detail_image"-->
-            <!--android:background="@drawable/ic_star_border_black_36px" />-->
-
         <ToggleButton
             android:id="@+id/tb_toggle_favorite"
             android:layout_width="36dp"

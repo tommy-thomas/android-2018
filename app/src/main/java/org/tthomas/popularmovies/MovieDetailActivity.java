@@ -1,5 +1,6 @@
 package org.tthomas.popularmovies;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -126,10 +127,22 @@ public class MovieDetailActivity extends AppCompatActivity  {
                         // Insert the content values via a ContentResolver
                         Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
 
+                        FAVORITE_ID = Integer.parseInt(uri.getPathSegments().get(1));
+
                         // Display the URI that's returned with a Toast
                         // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
                         if (uri != null) {
-                            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getBaseContext(), "Insert: " + uri.toString(), Toast.LENGTH_LONG).show();
+                        }
+
+                    } else {
+                        if (FAVORITE_ID > 0) {
+
+                            Uri uri = ContentUris.withAppendedId(CONTENT_URI,FAVORITE_ID);
+                            Toast.makeText(getBaseContext(), "Delete: " + Integer.toString(FAVORITE_ID) + "  " + uri.toString(), Toast.LENGTH_LONG).show();
+                            getContentResolver().delete(uri, null, null);
+                            FAVORITE_ID = -1;
+
                         }
                     }
 
@@ -191,9 +204,11 @@ public class MovieDetailActivity extends AppCompatActivity  {
     }
 
     private void initFavorite(){
+        ToggleButton toggleButton = (ToggleButton)findViewById(R.id.tb_toggle_favorite);
         if(FAVORITE_ID > -1){
-            ToggleButton toggleButton = (ToggleButton)findViewById(R.id.tb_toggle_favorite);
             toggleButton.setChecked(true);
+        } else {
+            toggleButton.setChecked(false);
         }
     }
 
