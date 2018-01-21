@@ -129,7 +129,12 @@ public class MovieDetailActivity extends AppCompatActivity  {
                         contentValues.put(COLUMN_ID, intentThatStartedThisActivity.getStringExtra("ID"));
                         contentValues.put(COLUMN_TITLE, intentThatStartedThisActivity.getStringExtra("Title"));
                         contentValues.put(COLUMN_OVERVIEW, intentThatStartedThisActivity.getStringExtra("Overview"));
-                        contentValues.put(COLUMN_POSTER_PATH, intentThatStartedThisActivity.getStringExtra("Poster"));
+
+                        String poster_url = intentThatStartedThisActivity.getStringExtra("Poster");
+                        String posterFileName = "/" + poster_url.substring(poster_url.lastIndexOf('/') + 1);
+
+                        contentValues.put(COLUMN_POSTER_PATH, posterFileName);
+
                         contentValues.put(COLUMN_RELEASE_DATE, intentThatStartedThisActivity.getStringExtra("ReleaseDate"));
                         contentValues.put(COLUMN_VOTE_AVERAGE, intentThatStartedThisActivity.getStringExtra("VoteAverage"));
 
@@ -141,14 +146,17 @@ public class MovieDetailActivity extends AppCompatActivity  {
                         // Display the URI that's returned with a Toast
                         // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
                         if (uri != null) {
-                            Toast.makeText(getBaseContext(), "Insert: " + uri.toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getBaseContext(), intentThatStartedThisActivity.getStringExtra("Title") +
+                                    " added to favorites.", Toast.LENGTH_LONG).show();
                         }
 
                     } else {
                         if (FAVORITE_ID > 0) {
+                            final Intent intentThatStartedThisActivity = getIntent();
 
                             Uri uri = ContentUris.withAppendedId(CONTENT_URI,FAVORITE_ID);
-                            Toast.makeText(getBaseContext(), "Delete: " + Integer.toString(FAVORITE_ID) + "  " + uri.toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getBaseContext(),intentThatStartedThisActivity.getStringExtra("Title") +
+                                    " removed from favorites.", Toast.LENGTH_LONG).show();
                             getContentResolver().delete(uri, null, null);
                             FAVORITE_ID = -1;
 
@@ -343,9 +351,8 @@ public class MovieDetailActivity extends AppCompatActivity  {
             if( null == mCursor || mCursor.getCount() < 0 ){
                 FAVORITE_ID = -1;
             } else if( mCursor.getCount() > 0){
-                int index = mCursor.getColumnIndex(FavoriteEntry._ID);
                 mCursor.moveToFirst();
-                FAVORITE_ID = mCursor.getInt(index);
+                FAVORITE_ID = mCursor.getInt(mCursor.getColumnIndex(FavoriteEntry._ID));
             }
 
         }

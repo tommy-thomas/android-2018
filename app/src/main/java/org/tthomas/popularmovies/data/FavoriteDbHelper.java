@@ -16,7 +16,7 @@ import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry._ID;
 
 public class FavoriteDbHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "favoritesDB.db";
+    private static final String DATABASE_NAME = "favorites.db";
 
     private static final int VERSION = 2;
 

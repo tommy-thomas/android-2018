@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.tthomas.popularmovies.data.FavoriteContract;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +28,6 @@ import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLU
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_RELEASE_DATE;
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_TITLE;
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_VOTE_AVERAGE;
-import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.CONTENT_URI;
-import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry._ID;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
+
     private void initViews() {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_movie_poster);
         recyclerView.setHasFixedSize(true);
@@ -111,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<MovieItem> movies = prepareData();
         movieItemAdapter = new MovieItemAdapter(getApplicationContext(), movies);
         recyclerView.setAdapter(movieItemAdapter);
-
     }
 
     private ArrayList<MovieItem> prepareData() {
@@ -130,6 +131,51 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return movies;
+
+    }
+
+    private class FetchFavoritesTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            try {
+
+                Cursor cursor = getContentResolver().query(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                       FavoriteContract.FavoriteEntry._ID);
+
+                if (cursor.moveToFirst()) {
+                    listIDs = new ArrayList<>();
+                    listTitles = new ArrayList<>();
+                    listOverviews = new ArrayList<>();
+                    listPosters = new ArrayList<>();
+                    listReleaseDates = new ArrayList<>();
+                    listVoteAverages = new ArrayList<>();
+                    while (!cursor.isAfterLast()) {
+                        listIDs.add(cursor.getString(cursor.getColumnIndex(COLUMN_ID)));
+                        listTitles.add(cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)));
+                        listOverviews.add(cursor.getString(cursor.getColumnIndex(COLUMN_OVERVIEW)));
+                        listPosters.add(cursor.getString(cursor.getColumnIndex(COLUMN_POSTER_PATH)));
+                        listReleaseDates.add(cursor.getString(cursor.getColumnIndex(COLUMN_RELEASE_DATE)));
+                        listVoteAverages.add(cursor.getString(cursor.getColumnIndex(COLUMN_VOTE_AVERAGE)));
+                        cursor.moveToNext();
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to asynchronously load data.");
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            initViews();
+        }
     }
 
     private class FetchMoviesTask extends AsyncTask<String, String, String> {
@@ -203,47 +249,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    private class FetchFavoritesTask extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            try {
-                Cursor cursor = getContentResolver().query(CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        _ID);
-
-                if (cursor.moveToFirst()) {
-                    while (!cursor.isAfterLast()) {
-                        listIDs.add(cursor.getString(cursor.getColumnIndex(COLUMN_ID)));
-                        listTitles.add(cursor.getString(cursor.getColumnIndex(COLUMN_TITLE)));
-                        listOverviews.add(cursor.getString(cursor.getColumnIndex(COLUMN_OVERVIEW)));
-                        listPosters.add(cursor.getString(cursor.getColumnIndex(COLUMN_POSTER_PATH)));
-                        listReleaseDates.add(cursor.getString(cursor.getColumnIndex(COLUMN_RELEASE_DATE)));
-                        listVoteAverages.add(cursor.getString(cursor.getColumnIndex(COLUMN_VOTE_AVERAGE)));
-                        cursor.moveToNext();
-
-                    }
-                }
-
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to asynchronously load data.");
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            initViews();
-        }
-    }
-
 }
-
-
-
-

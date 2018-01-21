@@ -32,7 +32,7 @@ public class MovieItem {
     public void setPreview( String preview ){ this.preview = preview; }
 
     public void setPoster_path(String poster_path){
-        this.poster_path = "https://image.tmdb.org/t/p/w185/" + poster_path;
+        this.poster_path = "https://image.tmdb.org/t/p/w185" + poster_path;
     }
 
     public String getRelease_date(){
