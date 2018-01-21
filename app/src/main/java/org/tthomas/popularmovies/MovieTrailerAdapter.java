@@ -34,7 +34,7 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
     @Override
     public void onBindViewHolder(final MovieTrailerAdapter.ViewHolder viewHolder, int i) {
 
-        if( viewHolder != null && movieTrailer.get(i).getType().toString().equals("Trailer") ){
+        if( viewHolder != null ){
             i = viewHolder.getAdapterPosition();
             viewHolder.movieTrailerName.setText(movieTrailer.get(i).getName().toString());
             viewHolder.movieTrailerImage.setImageResource(R.drawable.ic_movie);

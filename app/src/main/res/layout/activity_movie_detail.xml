@@ -16,9 +16,7 @@
             android:id="@+id/iv_movie_detail_image"
             android:layout_width="220dp"
             android:layout_height="220dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="10dp"
-            android:paddingLeft="0dp" />
+            android:layout_marginTop="10dp" />
 
         <TextView
             android:id="@+id/tv_movie_detail_title"
@@ -54,13 +52,12 @@
             android:id="@+id/tb_toggle_favorite"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_centerVertical="true"
-            android:layout_margin="10dp"
-            android:background="@drawable/favorite"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
             android:layout_below="@+id/tv_movie_detail_rating"
+            android:layout_margin="10dp"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
+            android:background="@drawable/favorite"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:textOff=""
             android:textOn="" />
 
@@ -78,17 +75,14 @@
             android:id="@+id/rv_movie_trailer_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_movie_detail_overview"
-            android:layout_marginTop="20dp" />
+            android:layout_below="@id/tv_movie_detail_overview" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_movie_review_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/rv_movie_trailer_list"
-            android:layout_marginTop="10dp" />
+            android:layout_below="@id/rv_movie_trailer_list" />
 
 
     </RelativeLayout>
-</ScrollView>
-<!-- android:layout_marginLeft="40dp" //-->
+</ScrollView><!-- android:layout_marginLeft="40dp" //-->

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -136,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
 
     private class FetchFavoritesTask extends AsyncTask<String, String, String> {
 
+        private  boolean hasFavorites = false;
+
         @Override
         protected String doInBackground(String... params) {
 
@@ -163,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
                         listVoteAverages.add(cursor.getString(cursor.getColumnIndex(COLUMN_VOTE_AVERAGE)));
                         cursor.moveToNext();
                     }
+                    hasFavorites = true;
                 }
 
             } catch (Exception e) {
@@ -174,7 +178,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            initViews();
+            if( hasFavorites ){
+                initViews();
+            } else {
+                Toast.makeText(getBaseContext(), "No favorites saved.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -200,39 +208,39 @@ public class MainActivity extends AppCompatActivity {
                 List<JsonNode> idnodes = results.findValues("id");
                 listIDs = new ArrayList<String>();
                 for (JsonNode id : idnodes) {
-                    listIDs.add(id.asText());
+                    listIDs.add(id.asText().trim());
                 }
 
                 //get the product view text data
                 List<JsonNode> posternodes = results.findValues("poster_path");
                 listPosters = new ArrayList<String>();
                 for (JsonNode poster : posternodes) {
-                    listPosters.add(poster.asText());
+                    listPosters.add(poster.asText().trim());
                 }
 
                 List<JsonNode> titlenodes = results.findValues("title");
                 listTitles = new ArrayList<String>();
                 for (JsonNode title : titlenodes) {
-                    listTitles.add(title.asText());
+                    listTitles.add(title.asText().trim());
                 }
 
                 List<JsonNode> overviewnodes = results.findValues("overview");
                 listOverviews = new ArrayList<String>();
                 for (JsonNode overview : overviewnodes) {
-                    listOverviews.add(overview.asText());
+                    listOverviews.add(overview.asText().trim());
                 }
 
                 List<JsonNode> releasedatenodes = results.findValues("release_date");
                 listReleaseDates = new ArrayList<String>();
                 for (JsonNode releasedate : releasedatenodes) {
-                    listReleaseDates.add(releasedate.asText());
+                    listReleaseDates.add(releasedate.asText().trim());
                 }
 
 
                 List<JsonNode> voteaveragenodes = results.findValues("vote_average");
                 listVoteAverages = new ArrayList<String>();
                 for (JsonNode voteaverage : voteaveragenodes) {
-                    listVoteAverages.add(voteaverage.asText());
+                    listVoteAverages.add(voteaverage.asText().trim());
                 }
 
 
