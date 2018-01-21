@@ -7,6 +7,5 @@
             android:id="@+id/tv_movie_review"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#333333"
-            android:textSize="16sp" />
+            style="@style/MovieDetailStyle" />
 </RelativeLayout>

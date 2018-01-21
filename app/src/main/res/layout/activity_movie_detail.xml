@@ -25,6 +25,7 @@
             android:layout_toRightOf="@+id/iv_movie_detail_image"
             android:textColor="#333333"
             android:textSize="26sp"
+            android:layout_marginLeft="10dp"
             android:textStyle="bold" />
 
 
@@ -34,8 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_movie_detail_title"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
-            android:textColor="#333333"
-            android:textSize="16sp"
+            style="@style/MovieDetailStyle"
             android:textStyle="bold" />
 
         <TextView
@@ -44,8 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_movie_detail_release_date"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
-            android:textColor="#333333"
-            android:textSize="16sp"
+            style="@style/MovieDetailStyle"
             android:textStyle="bold" />
 
         <ToggleButton
@@ -68,8 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_movie_detail_image"
             android:layout_marginTop="10dp"
-            android:textColor="#333333"
-            android:textSize="16sp" />
+            style="@style/MovieDetailStyle" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_movie_trailer_list"
