@@ -24,7 +24,7 @@ public class FavoriteDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Create tasks table (careful to follow SQL formatting rules)
+        // Create favorites table (careful to follow SQL formatting rules)
         final String CREATE_TABLE = "CREATE TABLE "  + TABLE_NAME + " (" +
                 _ID                + " INTEGER PRIMARY KEY, " +
                 COLUMN_TITLE + " TEXT NOT NULL, " +

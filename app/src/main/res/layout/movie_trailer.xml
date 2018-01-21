@@ -3,7 +3,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="@style/MovieDetailStyle">
+    style="@style/MovieDetailStyle"
+    android:background="@drawable/border_bottom"
+    android:paddingBottom="20dp">
 <ImageView
     android:id="@+id/iv_movie_trailer_image"
     android:layout_width="40dp"

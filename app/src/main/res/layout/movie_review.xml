@@ -7,5 +7,7 @@
             android:id="@+id/tv_movie_review"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/MovieDetailStyle" />
+            style="@style/MovieDetailStyle"
+            android:background="@drawable/border_bottom"
+            android:paddingBottom="10dp"/>
 </RelativeLayout>

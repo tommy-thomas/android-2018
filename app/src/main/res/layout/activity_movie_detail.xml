@@ -35,7 +35,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_movie_detail_title"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
-            style="@style/MovieDetailStyle"
+            android:textColor="#333333"
+            android:textSize="16dp"
+            android:layout_marginLeft="10dp"
             android:textStyle="bold" />
 
         <TextView
@@ -44,7 +46,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_movie_detail_release_date"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
-            style="@style/MovieDetailStyle"
+            android:textColor="#333333"
+            android:textSize="16dp"
+            android:layout_marginLeft="10dp"
             android:textStyle="bold" />
 
         <ToggleButton
