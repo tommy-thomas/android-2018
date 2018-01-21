@@ -16,9 +16,7 @@
             android:id="@+id/iv_movie_detail_image"
             android:layout_width="220dp"
             android:layout_height="220dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="10dp"
-            android:paddingLeft="0dp" />
+            android:layout_marginTop="10dp" />
 
         <TextView
             android:id="@+id/tv_movie_detail_title"
@@ -27,6 +25,7 @@
             android:layout_toRightOf="@+id/iv_movie_detail_image"
             android:textColor="#333333"
             android:textSize="26sp"
+            android:layout_marginLeft="10dp"
             android:textStyle="bold" />
 
 
@@ -37,7 +36,8 @@
             android:layout_below="@+id/tv_movie_detail_title"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
             android:textColor="#333333"
-            android:textSize="16sp"
+            android:textSize="16dp"
+            android:layout_marginLeft="10dp"
             android:textStyle="bold" />
 
         <TextView
@@ -47,58 +47,44 @@
             android:layout_below="@+id/tv_movie_detail_release_date"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
             android:textColor="#333333"
-            android:textSize="16sp"
+            android:textSize="16dp"
+            android:layout_marginLeft="10dp"
             android:textStyle="bold" />
-
-        <!--<ImageView-->
-            <!--android:id="@+id/iv_favorites_star"-->
-            <!--android:layout_width="36dp"-->
-            <!--android:layout_height="36dp"-->
-            <!--android:layout_below="@+id/tv_movie_detail_rating"-->
-            <!--android:layout_toRightOf="@+id/iv_movie_detail_image"-->
-            <!--android:background="@drawable/ic_star_border_black_36px" />-->
 
         <ToggleButton
             android:id="@+id/tb_toggle_favorite"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_centerVertical="true"
-            android:layout_margin="10dp"
-            android:background="@drawable/favorite"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
             android:layout_below="@+id/tv_movie_detail_rating"
+            android:layout_margin="10dp"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
+            android:background="@drawable/favorite"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:textOff=""
             android:textOn="" />
 
 
         <TextView
             android:id="@+id/tv_movie_detail_overview"
-            android:layout_width="440dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_movie_detail_image"
-            android:layout_marginLeft="40dp"
             android:layout_marginTop="10dp"
-            android:textColor="#333333"
-            android:textSize="18sp" />
+            style="@style/MovieDetailStyle" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_movie_trailer_list"
-            android:layout_width="440dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_movie_detail_overview"
-            android:layout_marginLeft="40dp"
-            android:layout_marginTop="20dp" />
+            android:layout_below="@id/tv_movie_detail_overview" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_movie_review_list"
-            android:layout_width="440dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/rv_movie_trailer_list"
-            android:layout_marginLeft="40dp"
-            android:layout_marginTop="10dp" />
+            android:layout_below="@id/rv_movie_trailer_list" />
 
 
     </RelativeLayout>
-</ScrollView>
+</ScrollView><!-- android:layout_marginLeft="40dp" //-->
