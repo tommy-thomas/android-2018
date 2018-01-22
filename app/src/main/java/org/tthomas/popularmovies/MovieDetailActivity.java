@@ -146,7 +146,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                         // Display the URI that's returned with a Toast
                         // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
                         if (uri != null) {
-                            Toast.makeText(getBaseContext(), intentThatStartedThisActivity.getStringExtra("Title") +
+                            Toast.makeText(getBaseContext(), "\"" + intentThatStartedThisActivity.getStringExtra("Title") + "\"" +
                                     " added to favorites.", Toast.LENGTH_LONG).show();
                         }
 
@@ -155,7 +155,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                             final Intent intentThatStartedThisActivity = getIntent();
 
                             Uri uri = ContentUris.withAppendedId(CONTENT_URI, FAVORITE_ID);
-                            Toast.makeText(getBaseContext(), intentThatStartedThisActivity.getStringExtra("Title") +
+                            Toast.makeText(getBaseContext(), "\"" + intentThatStartedThisActivity.getStringExtra("Title") + "\"" +
                                     " removed from favorites.", Toast.LENGTH_LONG).show();
                             getContentResolver().delete(uri, null, null);
                             FAVORITE_ID = -1;

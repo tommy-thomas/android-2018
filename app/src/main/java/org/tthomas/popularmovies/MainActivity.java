@@ -1,9 +1,11 @@
 package org.tthomas.popularmovies;
 
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,7 +43,12 @@ public class MainActivity extends AppCompatActivity {
     private List<String> listReleaseDates;
     private List<String> listVoteAverages;
 
+    private ArrayList<MovieItem> movieItems;
+
+
     private MovieItemAdapter movieItemAdapter;
+
+    public static final String MOVIE_ITEMS_SAVED_STATE = "movie-items-saved-state";
 
     public static final String URL_POPULAR = "https://api.themoviedb.org/3/movie/popular?api_key=";
 
@@ -49,23 +56,64 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MOVIE_API_TOKEN = BuildConfig.MOVIE_API_TOKEN;
 
+    private String displayPreference = "display-preference";
+
+    public static final String DISPLAY_POPULAR = "popular-display";
+    public static final String DISPLAY_TOP_RATED = "top-rated-display";
+    public static final String DISPLAY_FAVORITES = "favorites-display";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-            //Make call to AsyncTask so that we can get
-            //the initial data from the network
-            new FetchMoviesTask().execute();
+        if(savedInstanceState != null && savedInstanceState.containsKey(MOVIE_ITEMS_SAVED_STATE)) {
+            movieItems = savedInstanceState.getParcelableArrayList(MOVIE_ITEMS_SAVED_STATE);
+            initViews(false);
+        } else {
+            // Shared prefs checking
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+//        SharedPreferences.Editor editor = sharedPref.edit();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (sharedPref.contains(displayPreference)) {
+                String pref = sharedPref.getString(displayPreference, DISPLAY_POPULAR);
+                if (pref.equals(DISPLAY_POPULAR)) {
+                    try {
+                        new FetchMoviesTask().execute(URL_POPULAR);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (pref.equals(DISPLAY_TOP_RATED)) {
+                    try {
+                        new FetchMoviesTask().execute(URL_TOP_RATED);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (pref.equals(DISPLAY_FAVORITES)) {
+                    try {
+                        new FetchFavoritesTask().execute();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                try {
+                    new FetchMoviesTask().execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(MOVIE_ITEMS_SAVED_STATE, movieItems);
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -81,18 +129,27 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
         if (id == R.id.action_sort_popular) {
             new FetchMoviesTask().execute(URL_POPULAR);
+            editor.putString(displayPreference, DISPLAY_POPULAR);
+            editor.apply();
             return true;
         }
 
         if (id == R.id.action_sort_top_rated) {
             new FetchMoviesTask().execute(URL_TOP_RATED);
+            editor.putString(displayPreference, DISPLAY_TOP_RATED);
+            editor.apply();
             return true;
         }
 
         if (id == R.id.action_favorites) {
             new FetchFavoritesTask().execute();
+            editor.putString(displayPreference, DISPLAY_FAVORITES);
+            editor.apply();
             return true;
         }
 
@@ -100,8 +157,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    private void initViews() {
+    private void initViews( boolean prepareData ) {
+        if( prepareData){
+            prepareData();
+        }
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_movie_poster);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 2);
@@ -111,33 +170,30 @@ public class MainActivity extends AppCompatActivity {
         } else {
             recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 4));
         }
-        ArrayList<MovieItem> movies = prepareData();
-        movieItemAdapter = new MovieItemAdapter(getApplicationContext(), movies);
+        movieItemAdapter = new MovieItemAdapter(getApplicationContext(), movieItems);
         recyclerView.setAdapter(movieItemAdapter);
     }
 
-    private ArrayList<MovieItem> prepareData() {
-
-        ArrayList<MovieItem> movies = new ArrayList<>();
+    private  void prepareData() {
+        movieItems = new ArrayList<>();
         if (!listPosters.isEmpty()) {
             for (int i = 0; i < listPosters.size(); i++) {
-                MovieItem movieItem = new MovieItem();
-                movieItem.setID(listIDs.get(i));
-                movieItem.setPoster_path(listPosters.get(i));
-                movieItem.setTitle(listTitles.get(i));
-                movieItem.setOverview(listOverviews.get(i));
-                movieItem.setVote_average(listVoteAverages.get(i));
-                movieItem.setRelease_date(listReleaseDates.get(i));
-                movies.add(movieItem);
+                MovieItem movieItem = new MovieItem(
+                        listIDs.get(i),
+                        listTitles.get(i),
+                        listPosters.get(i),
+                        listReleaseDates.get(i),
+                        listOverviews.get(i),
+                        listVoteAverages.get(i));
+                movieItems.add(movieItem);
             }
         }
-        return movies;
 
     }
 
     private class FetchFavoritesTask extends AsyncTask<String, String, String> {
 
-        private  boolean hasFavorites = false;
+        private boolean hasFavorites = false;
 
         @Override
         protected String doInBackground(String... params) {
@@ -148,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                         null,
                         null,
                         null,
-                       FavoriteContract.FavoriteEntry._ID);
+                        FavoriteContract.FavoriteEntry._ID);
 
                 if (cursor.moveToFirst()) {
                     listIDs = new ArrayList<>();
@@ -178,8 +234,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            if( hasFavorites ){
-                initViews();
+            if (hasFavorites) {
+                initViews(true);
             } else {
                 Toast.makeText(getBaseContext(), "No favorites saved.", Toast.LENGTH_LONG).show();
             }
@@ -253,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            initViews();
+            initViews(true);
         }
     }
 
