@@ -64,6 +64,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private MovieReviewAdapter movieReviewAdapter;
 
+    private MovieItem movieItem;
+
     private String URL_TRAILER = "https://api.themoviedb.org/3/movie/%s/videos?api_key=";
 
     private String URL_REVIEW = "https://api.themoviedb.org/3/movie/%s/reviews?api_key=";
@@ -92,23 +94,26 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         Intent intentThatStartedThisActivity = getIntent();
 
-        MOVIE_ID = intentThatStartedThisActivity.getStringExtra("ID");
+        movieItem = getIntent().getParcelableExtra("Movie");
 
-        if (intentThatStartedThisActivity != null) {
-            if (intentThatStartedThisActivity.hasExtra("Poster")) {
+        if (movieItem != null) {
+
+            MOVIE_ID = movieItem.getID();
+
+            if ( movieItem.getPoster_path() != "") {
 
                 Picasso.with(this)
-                        .load(intentThatStartedThisActivity.getStringExtra("Poster"))
+                        .load(movieItem.getPoster_path())
                         .into(mImageDetail);
             }
 
-            mTitleDetail.setText(intentThatStartedThisActivity.getStringExtra("Title"));
+            mTitleDetail.setText(movieItem.getTitle());
 
-            mOverviewDetail.setText(intentThatStartedThisActivity.getStringExtra("Overview"));
+            mOverviewDetail.setText(movieItem.getOverview());
 
-            mReleaseDateDetail.setText("Release Date: " + intentThatStartedThisActivity.getStringExtra("ReleaseDate"));
+            mReleaseDateDetail.setText("Release Date: " + movieItem.getRelease_date());
 
-            mRatingDetail.setText("Rating: " + intentThatStartedThisActivity.getStringExtra("VoteAverage"));
+            mRatingDetail.setText("Rating: " + movieItem.getVote_average());
 
             mToggleFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -126,17 +131,17 @@ public class MovieDetailActivity extends AppCompatActivity {
                         // Create new empty ContentValues object
                         ContentValues contentValues = new ContentValues();
                         // Put the task description and selected mPriority into the ContentValues
-                        contentValues.put(COLUMN_ID, intentThatStartedThisActivity.getStringExtra("ID"));
-                        contentValues.put(COLUMN_TITLE, intentThatStartedThisActivity.getStringExtra("Title"));
-                        contentValues.put(COLUMN_OVERVIEW, intentThatStartedThisActivity.getStringExtra("Overview"));
+                        contentValues.put(COLUMN_ID, movieItem.getID() );
+                        contentValues.put(COLUMN_TITLE, movieItem.getTitle() );
+                        contentValues.put(COLUMN_OVERVIEW, movieItem.getOverview() );
 
-                        String poster_url = intentThatStartedThisActivity.getStringExtra("Poster");
+                        String poster_url = movieItem.getPoster_path();
                         String posterFileName = "/" + poster_url.substring(poster_url.lastIndexOf('/') + 1);
 
                         contentValues.put(COLUMN_POSTER_PATH, posterFileName);
 
-                        contentValues.put(COLUMN_RELEASE_DATE, intentThatStartedThisActivity.getStringExtra("ReleaseDate"));
-                        contentValues.put(COLUMN_VOTE_AVERAGE, intentThatStartedThisActivity.getStringExtra("VoteAverage"));
+                        contentValues.put(COLUMN_RELEASE_DATE, movieItem.getRelease_date());
+                        contentValues.put(COLUMN_VOTE_AVERAGE, movieItem.getVote_average());
 
                         // Insert the content values via a ContentResolver
                         Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
@@ -146,7 +151,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                         // Display the URI that's returned with a Toast
                         // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
                         if (uri != null) {
-                            Toast.makeText(getBaseContext(), "\"" + intentThatStartedThisActivity.getStringExtra("Title") + "\"" +
+                            Toast.makeText(getBaseContext(), "\"" + movieItem.getTitle() + "\"" +
                                     " added to favorites.", Toast.LENGTH_LONG).show();
                         }
 
@@ -155,7 +160,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                             final Intent intentThatStartedThisActivity = getIntent();
 
                             Uri uri = ContentUris.withAppendedId(CONTENT_URI, FAVORITE_ID);
-                            Toast.makeText(getBaseContext(), "\"" + intentThatStartedThisActivity.getStringExtra("Title") + "\"" +
+                            Toast.makeText(getBaseContext(), "\"" + movieItem.getTitle() + "\"" +
                                     " removed from favorites.", Toast.LENGTH_LONG).show();
                             getContentResolver().delete(uri, null, null);
                             FAVORITE_ID = -1;
@@ -170,13 +175,10 @@ public class MovieDetailActivity extends AppCompatActivity {
             try {
                 //Make call to AsyncTask so that we can get
                 //the initial data from the network
-                String ID = intentThatStartedThisActivity.getStringExtra("ID");
-                Log.d("TRAILER ID", ID);
-                new FetchMovieTrailersTask().execute(ID);
+                new FetchMovieTrailersTask().execute(movieItem.getID());
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d("TRAILER ID", "oops");
             }
         }
 

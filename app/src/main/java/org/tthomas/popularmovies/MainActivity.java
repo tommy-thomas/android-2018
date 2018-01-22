@@ -36,6 +36,10 @@ import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLU
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MOVIES_DB";
+    private static final String DISPLAY_POPULAR = "display-popular";
+    private static final String DISPLAY_FAVORITES = "display-favorites";
+    private static final String DISPLAY_TOP_RATED = "display-top-rated";
+
     private List<String> listIDs;
     private List<String> listPosters;
     private List<String> listTitles;
@@ -56,11 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MOVIE_API_TOKEN = BuildConfig.MOVIE_API_TOKEN;
 
-    private String displayPreference = "display-preference";
 
-    public static final String DISPLAY_POPULAR = "popular-display";
-    public static final String DISPLAY_TOP_RATED = "top-rated-display";
-    public static final String DISPLAY_FAVORITES = "favorites-display";
+    private String displayPreference = "display-preference";
 
 
     @Override
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initViews( boolean prepareData ) {
-        if( prepareData){
+        if( prepareData ){
             prepareData();
         }
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_movie_poster);
