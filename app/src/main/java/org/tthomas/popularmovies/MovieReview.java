@@ -1,18 +1,37 @@
 package org.tthomas.popularmovies;
 
-/**
- * Created by tommy-thomas on 1/17/18.
- */
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class MovieReview {
+public class MovieReview implements Parcelable {
 
-//    author:"piyushgupta69"
-//    content:"Previous 2 parts were much better story wise, however effects are good in this part."
-//    id:"5a4ff969c3a3681bca00082a"
-//    url:"https://www.themoviedb.org/review/5a4ff969c3a3681bca00082a"
     public String id;
     public String content;
     public String author;
+
+    public MovieReview(String id, String content, String author){
+        this.id = id;
+        this.content = content;
+        this.author = author;
+    }
+
+    protected MovieReview(Parcel in) {
+        id = in.readString();
+        content = in.readString();
+        author = in.readString();
+    }
+
+    public static final Creator<MovieReview> CREATOR = new Creator<MovieReview>() {
+        @Override
+        public MovieReview createFromParcel(Parcel in) {
+            return new MovieReview(in);
+        }
+
+        @Override
+        public MovieReview[] newArray(int size) {
+            return new MovieReview[size];
+        }
+    };
 
     public String getId(){ return id; }
 
@@ -26,4 +45,15 @@ public class MovieReview {
 
     public void setAuthor( String author ){ this.author = author; }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(content);
+        dest.writeString(author);
+    }
 }

@@ -20,6 +20,9 @@ public class FavoriteDbHelper extends SQLiteOpenHelper {
 
     private static final int VERSION = 2;
 
+    //Add alter statement with schema update.
+    private static final String DATABASE_ALTER = "";
+
     FavoriteDbHelper(Context context){ super(context, DATABASE_NAME, null, VERSION);}
 
     @Override
@@ -39,7 +42,8 @@ public class FavoriteDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        onCreate(db);
+        if( newVersion > oldVersion){
+            db.execSQL(DATABASE_ALTER);
+        }
     }
 }

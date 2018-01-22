@@ -32,8 +32,24 @@
         <item name="android:layout_marginRight">10dp</item>
         <item name="android:layout_marginBottom">15dp</item>
         <item name="android:textSize">16dp</item>
-        <item name="android:textColor">#333333</item>
+        <item name="android:textColor">@color/appTextColor</item>
+        <item name="android:background">@drawable/border_bottom</item>
+        <item name="android:paddingBottom">@dimen/margin_10dp</item>
     </style>
 
+    <style name="MoviePosterBorderStyle">
+      <item name="android:layout_height">3dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@color/posterBorderColor</item>
+    </style>
+
+    <style name="MovieDetailText">
+        <item name="android:textSize">16dp</item>
+        <item name="android:textColor">@color/appTextColor</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginLeft">@dimen/margin_10dp</item>
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 
 </resources>

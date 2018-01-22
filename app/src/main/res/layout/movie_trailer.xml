@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_marginTop="10dp"
-        android:textColor="#333333"
+        android:layout_marginTop="@dimen/margin_10dp"
+        android:textColor="@color/appTextColor"
         android:layout_toRightOf="@+id/iv_movie_trailer_image"/>
 </RelativeLayout>

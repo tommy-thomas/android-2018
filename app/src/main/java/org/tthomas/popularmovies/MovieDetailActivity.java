@@ -2,7 +2,6 @@ package org.tthomas.popularmovies;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
@@ -11,7 +10,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,7 +23,7 @@ import com.squareup.picasso.Picasso;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry;
 import static org.tthomas.popularmovies.data.FavoriteContract.FavoriteEntry.COLUMN_ID;
@@ -54,15 +52,14 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private String MOVIE_ID;
 
-    private List<String> listIDs;
-    private List<String> listKeys;
-    private List<String> listNames;
-    private List<String> listTypes;
-    private List<String> listReviewContent;
+    private ArrayList<MovieTrailer> movieTrailers;
+    private ArrayList<MovieReview> movieReviews;
 
     private MovieTrailerAdapter movieTrailerAdapter;
 
     private MovieReviewAdapter movieReviewAdapter;
+
+    private MovieItem movieItem;
 
     private String URL_TRAILER = "https://api.themoviedb.org/3/movie/%s/videos?api_key=";
 
@@ -70,14 +67,33 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     public static final String MOVIE_API_TOKEN = BuildConfig.MOVIE_API_TOKEN;
 
+    private final static String MOVIE_ITEM_KEY = "movie-item";
+    private final static String MOVIE_REVIEW_KEY = "movie-reviewq";
+    private final static String MOVIE_TRAILER_KEY = "movie-trailer";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         setContentView(R.layout.activity_movie_detail);
 
+        if (savedInstanceState != null && savedInstanceState.containsKey(MOVIE_ITEM_KEY)) {
+            movieItem = savedInstanceState.getParcelable(MOVIE_ITEM_KEY);
+            movieReviews = savedInstanceState.getParcelableArrayList(MOVIE_REVIEW_KEY);
+            movieTrailers = savedInstanceState.getParcelableArrayList(MOVIE_TRAILER_KEY);
+            isFavorite(movieItem.getID());
+            initViews();
+        } else {
+            try {
+                //Make call to AsyncTask so that we can get
+                //the initial data from the network
+                movieItem = getIntent().getParcelableExtra("Movie");
+                new FetchMovieDetailsTask().execute(movieItem.getID());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         mImageDetail = (ImageView) findViewById(R.id.iv_movie_detail_image);
 
         mTitleDetail = (TextView) findViewById(R.id.tv_movie_detail_title);
@@ -90,33 +106,30 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         mToggleFavorite = (ToggleButton) findViewById(R.id.tb_toggle_favorite);
 
-        Intent intentThatStartedThisActivity = getIntent();
+        if (movieItem != null) {
 
-        MOVIE_ID = intentThatStartedThisActivity.getStringExtra("ID");
+            MOVIE_ID = movieItem.getID();
 
-        if (intentThatStartedThisActivity != null) {
-            if (intentThatStartedThisActivity.hasExtra("Poster")) {
+            if ( movieItem.getPoster_path() != "") {
 
                 Picasso.with(this)
-                        .load(intentThatStartedThisActivity.getStringExtra("Poster"))
+                        .load(movieItem.getPoster_path())
                         .into(mImageDetail);
             }
 
-            mTitleDetail.setText(intentThatStartedThisActivity.getStringExtra("Title"));
+            mTitleDetail.setText(movieItem.getTitle());
 
-            mOverviewDetail.setText(intentThatStartedThisActivity.getStringExtra("Overview"));
+            mOverviewDetail.setText(movieItem.getOverview());
 
-            mReleaseDateDetail.setText("Release Date: " + intentThatStartedThisActivity.getStringExtra("ReleaseDate"));
+            mReleaseDateDetail.setText("Release Date: " + movieItem.getRelease_date());
 
-            mRatingDetail.setText("Rating: " + intentThatStartedThisActivity.getStringExtra("VoteAverage"));
+            mRatingDetail.setText("Rating: " + movieItem.getVote_average());
 
             mToggleFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
                     if (FAVORITE_ID == -1) {
-
-                        final Intent intentThatStartedThisActivity = getIntent();
 
                         // Not yet implemented
                         // Check if EditText is empty, if not retrieve input and store it in a ContentValues object
@@ -126,17 +139,17 @@ public class MovieDetailActivity extends AppCompatActivity {
                         // Create new empty ContentValues object
                         ContentValues contentValues = new ContentValues();
                         // Put the task description and selected mPriority into the ContentValues
-                        contentValues.put(COLUMN_ID, intentThatStartedThisActivity.getStringExtra("ID"));
-                        contentValues.put(COLUMN_TITLE, intentThatStartedThisActivity.getStringExtra("Title"));
-                        contentValues.put(COLUMN_OVERVIEW, intentThatStartedThisActivity.getStringExtra("Overview"));
+                        contentValues.put(COLUMN_ID, movieItem.getID() );
+                        contentValues.put(COLUMN_TITLE, movieItem.getTitle() );
+                        contentValues.put(COLUMN_OVERVIEW, movieItem.getOverview() );
 
-                        String poster_url = intentThatStartedThisActivity.getStringExtra("Poster");
+                        String poster_url = movieItem.getPoster_path();
                         String posterFileName = "/" + poster_url.substring(poster_url.lastIndexOf('/') + 1);
 
                         contentValues.put(COLUMN_POSTER_PATH, posterFileName);
 
-                        contentValues.put(COLUMN_RELEASE_DATE, intentThatStartedThisActivity.getStringExtra("ReleaseDate"));
-                        contentValues.put(COLUMN_VOTE_AVERAGE, intentThatStartedThisActivity.getStringExtra("VoteAverage"));
+                        contentValues.put(COLUMN_RELEASE_DATE, movieItem.getRelease_date());
+                        contentValues.put(COLUMN_VOTE_AVERAGE, movieItem.getVote_average());
 
                         // Insert the content values via a ContentResolver
                         Uri uri = getContentResolver().insert(CONTENT_URI, contentValues);
@@ -146,16 +159,15 @@ public class MovieDetailActivity extends AppCompatActivity {
                         // Display the URI that's returned with a Toast
                         // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
                         if (uri != null) {
-                            Toast.makeText(getBaseContext(), intentThatStartedThisActivity.getStringExtra("Title") +
+                            Toast.makeText(getBaseContext(), "\"" + movieItem.getTitle() + "\"" +
                                     " added to favorites.", Toast.LENGTH_LONG).show();
                         }
 
                     } else {
                         if (FAVORITE_ID > 0) {
-                            final Intent intentThatStartedThisActivity = getIntent();
 
                             Uri uri = ContentUris.withAppendedId(CONTENT_URI, FAVORITE_ID);
-                            Toast.makeText(getBaseContext(), intentThatStartedThisActivity.getStringExtra("Title") +
+                            Toast.makeText(getBaseContext(), "\"" + movieItem.getTitle() + "\"" +
                                     " removed from favorites.", Toast.LENGTH_LONG).show();
                             getContentResolver().delete(uri, null, null);
                             FAVORITE_ID = -1;
@@ -165,21 +177,16 @@ public class MovieDetailActivity extends AppCompatActivity {
 
                 }
             });
-
-
-            try {
-                //Make call to AsyncTask so that we can get
-                //the initial data from the network
-                String ID = intentThatStartedThisActivity.getStringExtra("ID");
-                Log.d("TRAILER ID", ID);
-                new FetchMovieTrailersTask().execute(ID);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.d("TRAILER ID", "oops");
-            }
         }
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(MOVIE_ITEM_KEY, movieItem);
+        outState.putParcelableArrayList(MOVIE_TRAILER_KEY, movieTrailers);
+        outState.putParcelableArrayList(MOVIE_REVIEW_KEY, movieReviews);
+        super.onSaveInstanceState(outState);
     }
 
     private void initTrailerViews() {
@@ -194,7 +201,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
         }
         recyclerView.setNestedScrollingEnabled(false);
-        ArrayList<MovieTrailer> movieTrailers = prepareTrailerData();
         movieTrailerAdapter = new MovieTrailerAdapter(getApplicationContext(), movieTrailers);
         recyclerView.setAdapter(movieTrailerAdapter);
 
@@ -212,7 +218,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             recyclerView.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
         }
         recyclerView.setNestedScrollingEnabled(false);
-        ArrayList<MovieReview> movieReviews = prepareReviewData();
         movieReviewAdapter = new MovieReviewAdapter(getApplicationContext(), movieReviews);
         recyclerView.setAdapter(movieReviewAdapter);
 
@@ -233,39 +238,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         initFavorite();
     }
 
-    private ArrayList<MovieTrailer> prepareTrailerData() {
-
-        ArrayList<MovieTrailer> movieTrailers = new ArrayList<>();
-        if (!listIDs.isEmpty()) {
-            for (int i = 0; i < listIDs.size(); i++) {
-                if (listTypes.get(i).toString().equals("Trailer")) {
-                    MovieTrailer movieTrailer = new MovieTrailer();
-                    movieTrailer.setID(listIDs.get(i));
-                    movieTrailer.setName(listNames.get(i));
-                    movieTrailer.setKey(listKeys.get(i));
-                    movieTrailer.setType(listTypes.get(i));
-                    movieTrailers.add(movieTrailer);
-                }
-            }
-        }
-        return movieTrailers;
-    }
-
-    private ArrayList<MovieReview> prepareReviewData() {
-
-        ArrayList<MovieReview> movieReviews = new ArrayList<>();
-        if (!listReviewContent.isEmpty()) {
-            for (int i = 0; i < listReviewContent.size(); i++) {
-                MovieReview movieReview = new MovieReview();
-                movieReview.setContent(listReviewContent.get(i));
-                movieReviews.add(movieReview);
-            }
-        }
-        return movieReviews;
-    }
-
-
-    private class FetchMovieTrailersTask extends AsyncTask<String, String, String> {
+    private class FetchMovieDetailsTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
 
@@ -281,44 +254,39 @@ public class MovieDetailActivity extends AppCompatActivity {
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectNode moviedata = (ObjectNode) mapper.readTree(new URL(URL_TRAILER + MOVIE_API_TOKEN));
 
-                //root of important data
                 JsonNode results = moviedata.path("results");
-                Log.d("PAYLOAD", moviedata.toString());
+                Iterator<JsonNode> iterator = results.iterator();
+                movieTrailers = new ArrayList<>();
+                while (iterator.hasNext()) {
+                    JsonNode node = iterator.next();
+                    MovieTrailer movieTrailer = new MovieTrailer(
+                          node.get("id").asText(),
+                            node.get("key").asText(),
+                            node.get("name").asText(),
+                            node.get("type").asText()
 
-                List<JsonNode> idnodes = results.findValues("id");
-                listIDs = new ArrayList<>();
-                for (JsonNode id : idnodes) {
-                    listIDs.add(id.asText());
+                    );
+                    movieTrailers.add(movieTrailer);
                 }
 
-                //get the product view text data
-                List<JsonNode> keynodes = results.findValues("key");
-                listKeys = new ArrayList<>();
-                for (JsonNode key : keynodes) {
-                    listKeys.add(key.asText());
-                }
-
-                List<JsonNode> namenodes = results.findValues("name");
-                listNames = new ArrayList<>();
-                for (JsonNode name : namenodes) {
-                    listNames.add(name.asText());
-                }
-
-                List<JsonNode> typenodes = results.findValues("type");
-                listTypes = new ArrayList<>();
-                for (JsonNode type : typenodes) {
-                    listTypes.add(type.asText());
-                }
 
                 ObjectMapper reviewMapper = new ObjectMapper();
                 ObjectNode moviereviwdata = (ObjectNode) reviewMapper.readTree(new URL(URL_REVIEW + MOVIE_API_TOKEN));
 
-                JsonNode reviewresults = moviereviwdata.path("results");
-                List<JsonNode> contentnodes = reviewresults.findValues("content");
-                listReviewContent = new ArrayList<>();
-                for (JsonNode content : contentnodes) {
-                    listReviewContent.add(content.asText());
+                JsonNode movieresults = moviereviwdata.path("results");
+                iterator = movieresults.iterator();
+                movieReviews = new ArrayList<>();
+                while (iterator.hasNext()) {
+                    JsonNode node = iterator.next();
+                    MovieReview movieReview = new MovieReview(
+                            node.get("id").asText(),
+                            node.get("content").asText().trim(),
+                            node.get("author").asText().trim()
+
+                    );
+                   movieReviews.add(movieReview);
                 }
+
 
                 isFavorite(MOVIE_ID);
 
@@ -330,37 +298,36 @@ public class MovieDetailActivity extends AppCompatActivity {
             return null;
         }
 
-
-        private void isFavorite(String movieID) {
-
-            String[] mSelectionArgs = {movieID};
-
-            String mSelectionClause = FavoriteEntry.COLUMN_ID + " = ?";
-
-            String mProjection[] = {FavoriteEntry._ID};
-
-            String mSortOrder = FavoriteEntry.COLUMN_ID;
-
-            // Does a query against the table and returns a Cursor object
-            Cursor mCursor = getContentResolver().query(
-                    FavoriteEntry.CONTENT_URI,  // The content URI of the words table
-                    mProjection,                       // The columns to return for each row
-                    mSelectionClause,                 // Either null, or the word the user entered
-                    mSelectionArgs,                    // Either empty, or the string the user entered
-                    mSortOrder);// The sort order for the returned rows
-            if (null == mCursor || mCursor.getCount() < 0) {
-                FAVORITE_ID = -1;
-            } else if (mCursor.getCount() > 0) {
-                mCursor.moveToFirst();
-                FAVORITE_ID = mCursor.getInt(mCursor.getColumnIndex(FavoriteEntry._ID));
-            }
-
-        }
-
         @Override
         protected void onPostExecute(String result) {
             initViews();
         }
+    }
+
+    private void isFavorite(String movieID) {
+
+        String[] mSelectionArgs = {movieID};
+
+        String mSelectionClause = FavoriteEntry.COLUMN_ID + " = ?";
+
+        String mProjection[] = {FavoriteEntry._ID};
+
+        String mSortOrder = FavoriteEntry.COLUMN_ID;
+
+        // Does a query against the table and returns a Cursor object
+        Cursor mCursor = getContentResolver().query(
+                FavoriteEntry.CONTENT_URI,  // The content URI of the words table
+                mProjection,                       // The columns to return for each row
+                mSelectionClause,                 // Either null, or the word the user entered
+                mSelectionArgs,                    // Either empty, or the string the user entered
+                mSortOrder);// The sort order for the returned rows
+        if (null == mCursor || mCursor.getCount() < 0) {
+            FAVORITE_ID = -1;
+        } else if (mCursor.getCount() > 0) {
+            mCursor.moveToFirst();
+            FAVORITE_ID = mCursor.getInt(mCursor.getColumnIndex(FavoriteEntry._ID));
+        }
+
     }
 
 }

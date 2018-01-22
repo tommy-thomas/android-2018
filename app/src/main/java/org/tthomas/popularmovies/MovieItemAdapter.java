@@ -53,12 +53,7 @@ public class MovieItemAdapter extends RecyclerView.Adapter<MovieItemAdapter.View
                     Context context = viewHolder.itemView.getContext();
                     int i = viewHolder.getAdapterPosition();
                     Intent showMovieDetails = new Intent(context, MovieDetailActivity.class);
-                    showMovieDetails.putExtra("ID", movie.get(i).getID());
-                    showMovieDetails.putExtra("Poster", movie.get(i).getPoster_path());
-                    showMovieDetails.putExtra("Title", movie.get(i).getTitle());
-                    showMovieDetails.putExtra("Overview", movie.get(i).getOverview());
-                    showMovieDetails.putExtra("ReleaseDate", movie.get(i).getRelease_date());
-                    showMovieDetails.putExtra("VoteAverage", movie.get(i).getVote_average());
+                    showMovieDetails.putExtra("Movie" , movie.get(i));
                     context.startActivity(showMovieDetails);
                 }
             });
