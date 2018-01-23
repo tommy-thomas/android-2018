@@ -23,24 +23,24 @@
             android:id="@+id/tv_movie_detail_title"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin_10dp"
             android:layout_toRightOf="@+id/iv_movie_detail_image"
             android:textColor="@color/appTextColor"
             android:textSize="26sp"
-            android:layout_marginLeft="@dimen/margin_10dp"
             android:textStyle="bold" />
 
 
         <TextView
             android:id="@+id/tv_movie_detail_release_date"
+            style="@style/MovieDetailText"
             android:layout_below="@+id/tv_movie_detail_title"
-            android:layout_toRightOf="@+id/iv_movie_detail_image"
-            style="@style/MovieDetailText" />
+            android:layout_toRightOf="@+id/iv_movie_detail_image" />
 
         <TextView
             android:id="@+id/tv_movie_detail_rating"
+            style="@style/MovieDetailText"
             android:layout_below="@+id/tv_movie_detail_release_date"
-            android:layout_toRightOf="@+id/iv_movie_detail_image"
-            style="@style/MovieDetailText"/>
+            android:layout_toRightOf="@+id/iv_movie_detail_image" />
 
         <ToggleButton
             android:id="@+id/tb_toggle_favorite"
@@ -55,14 +55,13 @@
             android:textOff=""
             android:textOn="" />
 
-
         <TextView
             android:id="@+id/tv_movie_detail_overview"
+            style="@style/MovieDetailStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/iv_movie_detail_image"
-            android:layout_marginTop="@dimen/margin_10dp"
-            style="@style/MovieDetailStyle" />
+            android:layout_marginTop="@dimen/margin_10dp" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_movie_trailer_list"

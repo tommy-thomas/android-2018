@@ -259,6 +259,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 movieTrailers = new ArrayList<>();
                 while (iterator.hasNext()) {
                     JsonNode node = iterator.next();
+                    if( node.get("type").asText().equals("Trailer")){
                     MovieTrailer movieTrailer = new MovieTrailer(
                           node.get("id").asText(),
                             node.get("key").asText(),
@@ -266,7 +267,8 @@ public class MovieDetailActivity extends AppCompatActivity {
                             node.get("type").asText()
 
                     );
-                    movieTrailers.add(movieTrailer);
+                        movieTrailers.add(movieTrailer);
+                    }
                 }
 
 
